@@ -1,0 +1,11 @@
+Scrap multipalyer
+  make it singleplayer with challeges or levels maybe. Multiplayer with a leaderboard would be nice but far to time consuming for what I am trying to achieve
+
+Get chatgpt to generate a fish themed database
+  using a real world database would take away from the game like nature. Would save time from manual typing database entries
+
+Find a way to update stock prices over a certain period of time
+  I want to inlcude a function that randomizes stock prices in a small range. example: stockA = $5 30 seconds later stockA = 4.97 30 seconds later stockA = 5.04
+  I feel this would allow for natural feeling dips and rises.
+  Maybe edit the database to give every stock a volitility percentage so some stocks are inherintly slower movers than others
+
