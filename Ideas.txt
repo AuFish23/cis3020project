@@ -9,3 +9,28 @@ Find a way to update stock prices over a certain period of time
   I feel this would allow for natural feeling dips and rises.
   Maybe edit the database to give every stock a volitility percentage so some stocks are inherintly slower movers than others
 
+
+
+ChatGPT database prompt
+right now we need to make a database of stocks. I need you to make a fairly large database of random fake stocks. make them all fish/ocean related. heres some rules to follow when making this database Each stock will have a volatility number, indicating how much it can change when the market is simulated. Volatility numbers will range from 1-100. 1 being low 100 being high stocks will randomly be generated with a starting price. Stocks will have a starting price range of $.1 - $1000, but make it less likely to generate stocks larger than $200. Stocks less than or equal to $50 can have any volatility number, but more likely to have a lower volatilty number. stocks $51-$300 can have volatility numbers of 25-75. stocks more than $300 can have volatility numbers of 50-100, but more likely to be higher. if you have any other suggestions for this database pleas let me know
+
+What chatgpt recomended
+-add growth bias in the range of -2 to +2. this allows for some stocks to naturaly trend upward and downward
+
+Field	Meaning
+symbol	Ticker
+name	Company name
+price	Starting price
+volatility	1–100
+growthBias	-2 to +2
+sector	Category
+rarity	Game tier
+
+Growth Bias meaning:
+
+Value	Behavior
+-2	Usually declines
+-1	Slight downward
+0	Neutral
+1	Slight growth
+2	Strong growth
