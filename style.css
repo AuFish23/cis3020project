@@ -1,12 +1,14 @@
 body {
     font-family: Serif, Sans-serif, Arial;
     margin: 0;
+    font-weight: bold;
     background-color: #f4f7fb !important;
 }
 
 .header {
    font-family: Serif, Sans-serif, Arial;
    font-size: 24px;
+   font-weight: bold;   
 }
    
 
@@ -19,11 +21,16 @@ nav {
 }
 
 nav a {
+    font-size: 20px;
     color: white;
     margin-left: 15px;
     text-decoration: none;
 }
 
+nav:hover{
+    background-color: #079992;
+}
+    
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr; 
