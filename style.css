@@ -42,14 +42,14 @@ nav a {
     padding: 10px 15px;
     margin: 5px;
     border: none;
-    background-color: #38ada9;
+    background-color: white;
     color: white;
     cursor: pointer;
     border-radius: 5px;
 }
 
 .market-link:hover {
-    background-color: #079992;
+    background-color: LightGray;
 }
 
 .container {
@@ -57,7 +57,7 @@ nav a {
 }
 
 .card {
-    background: white;
+    background: #b3b3ff;
     padding: 15px;
     margin: 15px 0;
     border-radius: 8px;
