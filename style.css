@@ -1,8 +1,14 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: Serif, Sans-serif, Arial;
     margin: 0;
     background-color: #f4f7fb !important;
 }
+
+.header {
+   font-family: Serif, Sans-serif, Arial;
+   font-size: 24px;
+}
+   
 
 nav {
     background-color: #0a3d62;
