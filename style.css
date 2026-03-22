@@ -2,7 +2,7 @@ body {
     font-family: Serif, Sans-serif, Arial;
     margin: 0;
     font-weight: bold;
-    background-color: #f4f7fb !important;
+    background-color: #8c8c8c !important;
 }
 
 .header {
@@ -57,7 +57,7 @@ nav a {
 }
 
 .card {
-    background: #b3b3ff;
+    background: #f4f7fb;
     padding: 15px;
     margin: 15px 0;
     border-radius: 8px;
