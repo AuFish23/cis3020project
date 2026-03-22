@@ -27,7 +27,7 @@ nav a {
     text-decoration: none;
 }
 
-nav a:hover{
+.nav-main:hover{
     background-color: LightGray;
 }
     
