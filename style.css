@@ -65,18 +65,13 @@ nav a {
     box-shadow: 10px 10px 5px #1a1a1a;
 }
 
-button {
-    padding: 10px 15px;
-    margin: 5px;
-    border: none;
-    background-color: #38ada9;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
+.logo {
+    margin: 0;
 }
 
-button:hover {
-    background-color: #079992;
+.logo img {
+    height: auto;  
+    width: auto;
 }
 
 table {
