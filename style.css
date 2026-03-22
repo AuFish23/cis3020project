@@ -13,7 +13,7 @@ body {
    
 
 nav {
-    background-color: #0a3d62;
+    background-color: #2a2aa2;
     color: white;
     padding: 15px;
     display: flex;
@@ -57,7 +57,7 @@ nav a {
 }
 
 .card {
-    background: #f4f7fb;
+    background: #8c8c8c;
     padding: 15px;
     margin: 15px 0;
     border-radius: 8px;
