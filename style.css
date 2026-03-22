@@ -15,7 +15,12 @@ body {
    
 /*nav*/
 nav { 
-    background-color: #404040;
+    background-color: linear-gradient(
+        to bottom,
+        #404040 0%,
+        #404040 70%,
+        #262626 100%
+    );
     color: #d9d9d9;
     padding: 15px;
     align-items: center;
