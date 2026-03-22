@@ -28,7 +28,7 @@ nav a {
 }
 
 nav a:hover{
-    background-color: #079992;
+    background-color: LightGray;
 }
     
 .dashboard-grid {
