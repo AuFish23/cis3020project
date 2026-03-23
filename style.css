@@ -15,7 +15,6 @@ body {
 .page-title {
    font-size: 24px;
    font-weight: bold;
-   align-items: center;
    display: flex;
    justify-content: center;
 }
@@ -94,6 +93,10 @@ nav a {
     margin: 15px 0;
     border-radius: 8px;
     box-shadow: 10px 10px 5px #1a1a1a;
+}
+
+.card p {
+    justify-content: center;
 }
 
 /*buttons*/
