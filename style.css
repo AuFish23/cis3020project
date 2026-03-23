@@ -99,6 +99,10 @@ nav a {
     justify-content: center;
 }
 
+.card a {
+    justify-content: center;
+}
+
 /*buttons*/
 .btn {
     display: inline-block;
