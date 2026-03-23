@@ -93,22 +93,20 @@ nav a {
     margin: 15px 0;
     border-radius: 8px;
     box-shadow: 10px 10px 5px #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;     
 }
 
 .card p {
-    display: flex;
-    justify-content: center;
+    text-align: center;
 }
-
-.card a {
-    display: flex;
-    justify-content: center;
-}
-
 /*buttons*/
 .btn {
     display: inline-block;
     padding: 10px 18px;
+    margin: 5px 0;
     background: linear-gradient(to right, #0f9b6e, #0a5ea8);
     color: #d9d9d9;
     border: none;
