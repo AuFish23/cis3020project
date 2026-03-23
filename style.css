@@ -17,7 +17,9 @@ body {
 nav { 
     background: linear-gradient(
         to bottom,
-        #404040 0%,
+        #0f9b6e 0%,
+        #0a5ea8 25%,
+        #404040 50%,
         #404040 70%,
         #262626 100%
     );
