@@ -96,10 +96,12 @@ nav a {
 }
 
 .card p {
+    display: flex;
     justify-content: center;
 }
 
 .card a {
+    display: flex;
     justify-content: center;
 }
 
