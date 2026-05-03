@@ -178,40 +178,42 @@ function refreshMarketTable(stocks, container) {
 
 // BUY 
 async function buyStock(symbol) {
-    const state = loadState();
-    const stocks = await getStocks();
-    const stock = stocks.find(s => s.symbol === symbol);
+    var state = loadState();
+    var stocks = await getStocks();
+    var stock = null;
+    for (var i = 0; i < stocks.length; i++) {
+        if (stocks[i].symbol === symbol) { stock = stocks[i]; break; }
+    }
     if (!stock) return;
-
-    const sharesStr = prompt(`Buy ${stock.name} (${symbol})\nCurrent price: ${stock.price.toFixed(2)} Fish\nYou have: ${state.fish.toFixed(2)} Fish\n\nHow many shares?`);
+ 
+    var sharesStr = prompt(
+        "Buy " + stock.name + " (" + symbol + ")\n" +
+        "Price: " + stock.price.toFixed(2) + " Fish per share\n" +
+        "You have: " + state.fish.toFixed(2) + " Fish\n\n" +
+        "How many shares?"
+    );
     if (!sharesStr) return;
-    const shares = parseInt(sharesStr);
+    var shares = parseInt(sharesStr);
     if (isNaN(shares) || shares <= 0) { alert("Invalid number of shares."); return; }
-
-    const cost = shares * stock.price;
-    if (cost > state.fish) { alert("Not enough Fish! You need " + cost.toFixed(2) + " Fish."); return; }
-
+ 
+    var cost = shares * stock.price;
+    if (cost > state.fish) { alert("Not enough Fish! This costs " + cost.toFixed(2) + " Fish."); return; }
+ 
     state.fish -= cost;
     if (!state.portfolio[symbol]) {
         state.portfolio[symbol] = { shares: 0, avgCost: 0 };
     }
-    const h = state.portfolio[symbol];
-    // weighted average cost
+    var h = state.portfolio[symbol];
     h.avgCost = ((h.avgCost * h.shares) + (stock.price * shares)) / (h.shares + shares);
     h.shares += shares;
     state.tradeCount++;
-
-    const newly = checkChallenges(state, stocks);
+ 
     saveState(state);
-
-    alert(`Bought ${shares} share(s) of ${symbol} for ${cost.toFixed(2)} Fish!`);
-    if (newly.length > 0) alert("🏆 Challenge(s) completed: " + newly.map(id => "Challenge " + id).join(", "));
-
-    // Re-render
-    const container = document.getElementById("stockTable");
-    if (container) renderMarketTable(stocks, state, container);
+    alert("Bought " + shares + " share(s) of " + symbol + " for " + cost.toFixed(2) + " Fish!");
+ 
+    var container = document.getElementById("stockTable");
+    if (container) refreshMarketTable(stocks, container);
 }
-
 // SELL
 async function sellStock(symbol) {
     var state = loadState();
