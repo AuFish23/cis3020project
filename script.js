@@ -2,7 +2,7 @@
 // GAME SETTINGS 
 var STARTING_FISH = 3000;       
 var TRANSACTION_FEE = 0.03;     
-var SIMULATE_COST = 75;        
+var SIMULATE_COST = 20;        
 var CRASH_CHANCE = 0.025;       
 var CRASH_DROP = 0.40;          
 
