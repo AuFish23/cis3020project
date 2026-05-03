@@ -327,9 +327,8 @@ async function claimChallenge(id) {
 document.addEventListener("DOMContentLoaded", () => {
     const page = window.location.pathname.split("/").pop();
 
-    if (page === "dashboard.html") initDashboard();
-    if (page === "market.html")    initMarket();
-    if (page === "challenges.html") initChallenges();
-
+    if (path.includes("dashboard"))  initDashboard();
+    if (path.includes("market"))     initMarket();
+    if (path.includes("challenges")) initChallenges();
     // Reset button on dashboard 
 });
