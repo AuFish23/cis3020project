@@ -325,7 +325,7 @@ async function claimChallenge(id) {
 
 // AUTO-INIT
 document.addEventListener("DOMContentLoaded", () => {
-    const page = window.location.pathname.split("/").pop();
+    const title = document.tile.toLowerCase();
   
     if (path.includes("dashboard"))  initDashboard();
     if (path.includes("market"))     initMarket();
