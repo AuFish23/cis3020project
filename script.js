@@ -73,7 +73,7 @@ async function simulateMarket() {
     if (Math.random() < CRASH_CHANCE) {
         var crashIndex = Math.floor(Math.random() * updated.length);
         var crashStock = updated[crashIndex];
-        var dropPct = 0.20 + Math.random() * CRASH_DROP; // 20-60% drop
+        var dropPct = 0.20 + Math.random() * CRASH_DROP;
         crashStock.price = Math.max(0.01, parseFloat((crashStock.price * (1 - dropPct)).toFixed(2)));
         updated[crashIndex] = crashStock;
         crashMessage = "MARKET CRASH! " + crashStock.symbol + " (" + crashStock.name + ") dropped " + Math.round(dropPct * 100) + "%!";
@@ -170,7 +170,6 @@ async function initMarket() {
     }
 }
 
-// Always reads fresh state so portfolio changes are always reflected
 function refreshMarketTable(stocks, container) {
     var state = loadState();
     var rows = "";
@@ -178,15 +177,23 @@ function refreshMarketTable(stocks, container) {
         var s = stocks[i];
         var owned = state.portfolio[s.symbol] ? state.portfolio[s.symbol].shares : 0;
         var trend = "Neutral";
-        if (s.growthBias >= 2)        trend = "Strong Up";
-        else if (s.growthBias === 1)  trend = "Up";
-        else if (s.growthBias === -1) trend = "Down";
-        else if (s.growthBias <= -2)  trend = "Strong Down";
-
+        if (s.previousPrice) {
+            var pct = (s.price - s.previousPrice) / s.previousPrice;
+            if (pct > 0.15)       trend = "Strong Up";
+            else if (pct > 0)     trend = "Up";
+            else if (pct < -0.15) trend = "Strong Down";
+            else if (pct < 0)     trend = "Down";
+        } else {
+            if (s.growthBias >= 2)        trend = "Strong Up";
+            else if (s.growthBias === 1)  trend = "Up";
+            else if (s.growthBias === -1) trend = "Down";
+            else if (s.growthBias <= -2)  trend = "Strong Down";
+        }
+ 
         var sellBtn = owned > 0
             ? "<button class='btn btn-sm btn-sell' onclick=\"sellStock('" + s.symbol + "')\">Sell</button>"
             : "";
-
+ 
         rows += "<tr>" +
             "<td><strong>" + s.symbol + "</strong></td>" +
             "<td>" + s.name + "</td>" +
@@ -197,7 +204,7 @@ function refreshMarketTable(stocks, container) {
             "<td><button class='btn btn-sm' onclick=\"buyStock('" + s.symbol + "')\">Buy</button> " + sellBtn + "</td>" +
             "</tr>";
     }
-
+ 
     container.innerHTML =
         "<table class='stock-table'>" +
         "<thead><tr>" +
@@ -206,7 +213,7 @@ function refreshMarketTable(stocks, container) {
         "<tbody>" + rows + "</tbody>" +
         "</table>";
 }
-
+ 
 // BUY 
 async function buyStock(symbol) {
     var state = loadState();
