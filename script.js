@@ -320,15 +320,7 @@ async function claimChallenge(id) {
     saveState(state);
 
     alert(`🏆 Challenge ${id} complete!\nYou earned ${bonus.toFixed(2)} Fish (${rewardPct}% of your buying power)!`);
-    initChallenges(); // re-render
-}
 
-// AUTO-INIT
-document.addEventListener("DOMContentLoaded", () => {
-    const title = document.tile.toLowerCase();
-  
-    if (path.includes("dashboard"))  initDashboard();
-    if (path.includes("market"))     initMarket();
-    if (path.includes("challenges")) initChallenges();
-    // Reset button on dashboard 
-});
+    initChallenges();
+    
+}
