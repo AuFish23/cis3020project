@@ -1,16 +1,22 @@
 
-//  DEFAULT STATE
+// GAME SETTINGS 
+var STARTING_FISH = 3000;       
+var TRANSACTION_FEE = 0.03;     
+var SIMULATE_COST = 75;        
+var CRASH_CHANCE = 0.025;       
+var CRASH_DROP = 0.40;          
+
+// DEFAULT STATE 
 var DEFAULT_STATE = {
-    fish: 5000,
-    portfolio: {},      
+    fish: STARTING_FISH,
+    portfolio: {},
     tradeCount: 0,
     profitableTrades: 0,
     simulationCount: 0,
-    challengesCompleted: [],
-    stockPrices: {}     
+    challengesCompleted: []
 };
 
-//  LOAD / SAVE STATE
+// LOAD / SAVE STATE
 function loadState() {
     var saved = localStorage.getItem("fishInvestState");
     return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -24,7 +30,7 @@ function resetState() {
     if (confirm("Are you sure you want to reset your game? This will wipe all your data.")) {
         localStorage.removeItem("fishInvestState");
         localStorage.removeItem("fishInvestStocks");
-        alert("Game reset! Starting fresh with 5,000 Fish.");
+        alert("Game reset! Starting fresh with " + STARTING_FISH + " Fish.");
         window.location.href = "index.html";
     }
 }
@@ -39,33 +45,42 @@ function loadStockPrices() {
     return saved ? JSON.parse(saved) : null;
 }
 
-// FETCH STOCKS
 async function getStocks() {
     var saved = loadStockPrices();
     if (saved) return saved;
-
     var response = await fetch("stocks.json");
     var stocks = await response.json();
     saveStockPrices(stocks);
     return stocks;
 }
 
-// SIMULATE ONE PRICE STEP
+// SIMULATE MARKET 
 function simulatePrice(stock) {
-    var volFraction = stock.volatility / 100; 
-    var biasFraction = stock.growthBias * 0.005;
+    var volFraction = stock.volatility / 50;
+    var biasFraction = stock.growthBias * 0.02;
     var change = (Math.random() * 2 - 1) * volFraction + biasFraction;
     var newPrice = stock.price * (1 + change);
     newPrice = Math.max(0.01, parseFloat(newPrice.toFixed(2)));
     return { symbol: stock.symbol, name: stock.name, price: newPrice, volatility: stock.volatility, growthBias: stock.growthBias };
 }
 
-// SIMULATE MARKET
 async function simulateMarket() {
     var stocks = await getStocks();
     var updated = stocks.map(simulatePrice);
+
+    // Market crash
+    var crashMessage = "";
+    if (Math.random() < CRASH_CHANCE) {
+        var crashIndex = Math.floor(Math.random() * updated.length);
+        var crashStock = updated[crashIndex];
+        var dropPct = 0.20 + Math.random() * CRASH_DROP; // 20-60% drop
+        crashStock.price = Math.max(0.01, parseFloat((crashStock.price * (1 - dropPct)).toFixed(2)));
+        updated[crashIndex] = crashStock;
+        crashMessage = "MARKET CRASH! " + crashStock.symbol + " (" + crashStock.name + ") dropped " + Math.round(dropPct * 100) + "%!";
+    }
+
     saveStockPrices(updated);
-    return updated;
+    return { stocks: updated, crashMessage: crashMessage };
 }
 
 // PORTFOLIO VALUE 
@@ -83,21 +98,19 @@ function getPortfolioValue(state, stocks) {
     return total;
 }
 
-// CHALLENGE CHECK
+// CHALLENGES 
 var CHALLENGE_LIST = [
     { id: 1,  desc: "Invest 500 Fish",            reward: 2,  check: function(s, inv) { return inv >= 500; } },
     { id: 2,  desc: "Make 3 investments",          reward: 3,  check: function(s, inv) { return s.tradeCount >= 3; } },
     { id: 3,  desc: "Reach 11,000 total Fish",     reward: 4,  check: function(s, inv) { return s.fish + inv >= 11000; } },
     { id: 4,  desc: "Simulate market 5 times",     reward: 5,  check: function(s, inv) { return s.simulationCount >= 5; } },
     { id: 5,  desc: "Invest 2,000 Fish",           reward: 6,  check: function(s, inv) { return inv >= 2000; } },
-    { id: 6,  desc: "Make a profit of 1,000 Fish", reward: 8,  check: function(s, inv) { return (s.fish + inv) - 5000 >= 1000; } },
+    { id: 6,  desc: "Make a profit of 1,000 Fish", reward: 8,  check: function(s, inv) { return (s.fish + inv) - STARTING_FISH >= 1000; } },
     { id: 7,  desc: "Reach 15,000 total Fish",     reward: 10, check: function(s, inv) { return s.fish + inv >= 15000; } },
     { id: 8,  desc: "Own 10 different stocks",     reward: 12, check: function(s, inv) { return Object.keys(s.portfolio).length >= 10; } },
     { id: 9,  desc: "Make 5 profitable trades",    reward: 15, check: function(s, inv) { return s.profitableTrades >= 5; } },
     { id: 10, desc: "Reach 25,000 total Fish",     reward: 20, check: function(s, inv) { return s.fish + inv >= 25000; } }
 ];
-
-
 
 // DASHBOARD
 async function initDashboard() {
@@ -105,8 +118,8 @@ async function initDashboard() {
     var stocks = await getStocks();
     var inv = getPortfolioValue(state, stocks);
     var total = state.fish + inv;
-    var profit = total - 5000;
-    var pct = ((profit / 5000) * 100).toFixed(1);
+    var profit = total - STARTING_FISH;
+    var pct = ((profit / STARTING_FISH) * 100).toFixed(1);
 
     document.getElementById("fish").textContent = state.fish.toFixed(2) + " Fish";
     document.getElementById("investments").textContent = inv.toFixed(2) + " Fish";
@@ -114,32 +127,50 @@ async function initDashboard() {
     document.getElementById("percent").textContent = (profit >= 0 ? "+" : "") + pct + "%";
     document.getElementById("profit").textContent = (profit >= 0 ? "+" : "") + profit.toFixed(2) + " Fish";
     document.getElementById("challegesCompleted").textContent = state.challengesCompleted.length + "/10";
+
+    var resetBtn = document.getElementById("resetBtn");
+    if (resetBtn) resetBtn.onclick = resetState;
 }
 
-//  MARKET
+// MARKET
 async function initMarket() {
     var container = document.getElementById("stockTable");
     if (!container) return;
- 
+
     var stocks = await getStocks();
     refreshMarketTable(stocks, container);
- 
+
     var simBtn = document.getElementById("simulateBtn");
     if (simBtn) {
         var initState = loadState();
-        simBtn.textContent = "Simulate Market (" + initState.simulationCount + " times)";
- 
+        simBtn.textContent = "Simulate Market (Cost: " + SIMULATE_COST + " Fish)";
+
         simBtn.addEventListener("click", async function() {
             var state = loadState();
+
+            // Charge fish for simulating
+            if (state.fish < SIMULATE_COST) {
+                alert("Not enough Fish to simulate! You need " + SIMULATE_COST + " Fish.");
+                return;
+            }
+            state.fish -= SIMULATE_COST;
             state.simulationCount++;
             saveState(state);
-            stocks = await simulateMarket();
+
+            var result = await simulateMarket();
+            stocks = result.stocks;
+
             refreshMarketTable(stocks, container);
-            simBtn.textContent = "Simulate Market (" + state.simulationCount + " times)";
+            simBtn.textContent = "Simulate Market (Cost: " + SIMULATE_COST + " Fish)";
+
+            if (result.crashMessage) {
+                alert("! " + result.crashMessage);
+            }
         });
     }
 }
 
+// Always reads fresh state so portfolio changes are always reflected
 function refreshMarketTable(stocks, container) {
     var state = loadState();
     var rows = "";
@@ -151,11 +182,11 @@ function refreshMarketTable(stocks, container) {
         else if (s.growthBias === 1)  trend = "Up";
         else if (s.growthBias === -1) trend = "Down";
         else if (s.growthBias <= -2)  trend = "Strong Down";
- 
+
         var sellBtn = owned > 0
             ? "<button class='btn btn-sm btn-sell' onclick=\"sellStock('" + s.symbol + "')\">Sell</button>"
             : "";
- 
+
         rows += "<tr>" +
             "<td><strong>" + s.symbol + "</strong></td>" +
             "<td>" + s.name + "</td>" +
@@ -166,7 +197,7 @@ function refreshMarketTable(stocks, container) {
             "<td><button class='btn btn-sm' onclick=\"buyStock('" + s.symbol + "')\">Buy</button> " + sellBtn + "</td>" +
             "</tr>";
     }
- 
+
     container.innerHTML =
         "<table class='stock-table'>" +
         "<thead><tr>" +
@@ -185,21 +216,28 @@ async function buyStock(symbol) {
         if (stocks[i].symbol === symbol) { stock = stocks[i]; break; }
     }
     if (!stock) return;
- 
+
     var sharesStr = prompt(
         "Buy " + stock.name + " (" + symbol + ")\n" +
         "Price: " + stock.price.toFixed(2) + " Fish per share\n" +
+        "Transaction fee: " + (TRANSACTION_FEE * 100) + "%\n" +
         "You have: " + state.fish.toFixed(2) + " Fish\n\n" +
         "How many shares?"
     );
     if (!sharesStr) return;
     var shares = parseInt(sharesStr);
     if (isNaN(shares) || shares <= 0) { alert("Invalid number of shares."); return; }
- 
-    var cost = shares * stock.price;
-    if (cost > state.fish) { alert("Not enough Fish! This costs " + cost.toFixed(2) + " Fish."); return; }
- 
-    state.fish -= cost;
+
+    var baseCost = shares * stock.price;
+    var fee = parseFloat((baseCost * TRANSACTION_FEE).toFixed(2));
+    var totalCost = parseFloat((baseCost + fee).toFixed(2));
+
+    if (totalCost > state.fish) {
+        alert("Not enough Fish!\nCost: " + baseCost.toFixed(2) + " Fish\nFee: " + fee.toFixed(2) + " Fish\nTotal: " + totalCost.toFixed(2) + " Fish");
+        return;
+    }
+
+    state.fish -= totalCost;
     if (!state.portfolio[symbol]) {
         state.portfolio[symbol] = { shares: 0, avgCost: 0 };
     }
@@ -207,14 +245,20 @@ async function buyStock(symbol) {
     h.avgCost = ((h.avgCost * h.shares) + (stock.price * shares)) / (h.shares + shares);
     h.shares += shares;
     state.tradeCount++;
- 
+
     saveState(state);
-    alert("Bought " + shares + " share(s) of " + symbol + " for " + cost.toFixed(2) + " Fish!");
- 
+    alert(
+        "Bought " + shares + " share(s) of " + symbol + "\n" +
+        "Cost: " + baseCost.toFixed(2) + " Fish\n" +
+        "Fee: " + fee.toFixed(2) + " Fish\n" +
+        "Total: " + totalCost.toFixed(2) + " Fish"
+    );
+
     var container = document.getElementById("stockTable");
     if (container) refreshMarketTable(stocks, container);
 }
-// SELL
+
+// SELL 
 async function sellStock(symbol) {
     var state = loadState();
     var stocks = await getStocks();
@@ -223,13 +267,14 @@ async function sellStock(symbol) {
         if (stocks[i].symbol === symbol) { stock = stocks[i]; break; }
     }
     if (!stock) return;
- 
+
     var holding = state.portfolio[symbol];
     if (!holding || holding.shares <= 0) { alert("You don't own any shares of " + symbol + "."); return; }
- 
+
     var sharesStr = prompt(
         "Sell " + stock.name + " (" + symbol + ")\n" +
         "Price: " + stock.price.toFixed(2) + " Fish per share\n" +
+        "Transaction fee: " + (TRANSACTION_FEE * 100) + "%\n" +
         "You own: " + holding.shares + " shares\n\n" +
         "How many shares to sell?"
     );
@@ -237,40 +282,44 @@ async function sellStock(symbol) {
     var shares = parseInt(sharesStr);
     if (isNaN(shares) || shares <= 0) { alert("Invalid number."); return; }
     if (shares > holding.shares) { alert("You only own " + holding.shares + " shares."); return; }
- 
-    var revenue = shares * stock.price;
+
+    var baseRevenue = shares * stock.price;
+    var fee = parseFloat((baseRevenue * TRANSACTION_FEE).toFixed(2));
+    var netRevenue = parseFloat((baseRevenue - fee).toFixed(2));
     var costBasis = shares * holding.avgCost;
-    var profit = revenue - costBasis;
- 
-    state.fish += revenue;
+    var profit = netRevenue - costBasis;
+
+    state.fish += netRevenue;
     holding.shares -= shares;
     if (holding.shares === 0) delete state.portfolio[symbol];
     if (profit > 0) state.profitableTrades++;
- 
+
     saveState(state);
     alert(
-        "Sold " + shares + " share(s) of " + symbol + " for " + revenue.toFixed(2) + " Fish!\n" +
+        "Sold " + shares + " share(s) of " + symbol + "\n" +
+        "Revenue: " + baseRevenue.toFixed(2) + " Fish\n" +
+        "Fee: " + fee.toFixed(2) + " Fish\n" +
+        "Net: " + netRevenue.toFixed(2) + " Fish\n" +
         "Trade profit/loss: " + (profit >= 0 ? "+" : "") + profit.toFixed(2) + " Fish"
     );
- 
+
     var container = document.getElementById("stockTable");
     if (container) refreshMarketTable(stocks, container);
 }
- 
 
 // CHALLENGES
 async function initChallenges() {
     var state = loadState();
     var stocks = await getStocks();
     var inv = getPortfolioValue(state, stocks);
- 
+
     for (var i = 0; i < CHALLENGE_LIST.length; i++) {
         var ch = CHALLENGE_LIST[i];
         var card = document.getElementById("challenge-" + ch.id);
         if (!card) continue;
         var btn = card.querySelector(".btn");
         if (!btn) continue;
- 
+
         if (state.challengesCompleted.indexOf(ch.id) !== -1) {
             btn.textContent = "Completed";
             btn.disabled = true;
@@ -287,36 +336,33 @@ async function initChallenges() {
         }
     }
 }
- 
+
 async function claimChallenge(id) {
     var state = loadState();
     var stocks = await getStocks();
     var inv = getPortfolioValue(state, stocks);
- 
-    // already claimed
+
     if (state.challengesCompleted.indexOf(id) !== -1) {
         alert("You already completed this challenge!");
         return;
     }
- 
+
     var ch = null;
     for (var i = 0; i < CHALLENGE_LIST.length; i++) {
         if (CHALLENGE_LIST[i].id === id) { ch = CHALLENGE_LIST[i]; break; }
     }
     if (!ch) return;
- 
-    // requirement not met
+
     if (!ch.check(state, inv)) {
         alert("Requirement not met yet:\n" + ch.desc);
         return;
     }
- 
-    // Apply reward
+
     var bonus = state.fish * (ch.reward / 100);
     state.fish += bonus;
     state.challengesCompleted.push(id);
     saveState(state);
- 
+
     alert("Challenge " + id + " complete!\nYou earned " + bonus.toFixed(2) + " Fish (+" + ch.reward + "% buying power)!");
     initChallenges();
 }
