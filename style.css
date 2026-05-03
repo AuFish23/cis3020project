@@ -102,6 +102,7 @@ nav a {
 .card p {
     text-align: center;
 }
+
 /*buttons*/
 .btn {
     display: inline-block;
@@ -121,6 +122,46 @@ nav a {
     background-color: rgba(255, 255, 255, 0.1);
     color: #d9d9d9;
     box-shadow: 10px 10px 5px #1a1a1a;
+}
+
+/* stock table */
+.stock-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 15px;
+}
+ 
+.stock-table th {
+    background: linear-gradient(to right, #0f9b6e, #0a5ea8);
+    color: #d9d9d9;
+    padding: 10px 12px;
+    text-align: left;
+}
+ 
+.stock-table td {
+    background: #404040;
+    padding: 9px 12px;
+    border-bottom: 1px solid #2e2e2e;
+    color: #d9d9d9;
+}
+ 
+.stock-table tr:hover td {
+    background: #4a4a4a;
+}
+ 
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 13px;
+    margin: 2px;
+}
+ 
+.btn-sell {
+    background: linear-gradient(to right, #a83232, #6b0a0a);
+}
+ 
+.btn-sell:hover {
+    background: linear-gradient(to right, #c04040, #8b1a1a);
 }
 
 /*other*/
